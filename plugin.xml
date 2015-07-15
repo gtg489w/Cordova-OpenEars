@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="com.torchproducts.cordova.openears" version="0.0.1">
+    <name>Open Ears</name>
+    <description>Cordova Open Ears Plugin</description>
+    <author>Brian O'Connor</author>
+    <license>MIT</license>
+    <keywords>openears,speech to text,text to speech</keywords>
+
+    <js-module src="www/OpenEars.js" name="OpenEars">
+        <clobbers target="cordova.plugins.OpenEars" />
+    </js-module>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="OpenEars">
+                <param name="ios-package" value="CDVOpenEars"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/CDVOpenEars.h" />
+        <source-file src="src/ios/CDVOpenEars.m" />
+
+        <resource-file src="OpenEars/Framework/AcousticModelEnglish.bundle" />
+        <resource-file src="OpenEars/Framework/AcousticModelSpanish.bundle" />
+
+        <framework src="OpenEars/Framework/OpenEars.framework" />
+        <framework src="OpenEars/Framework/Slt.framework" />
+
+        <framework src="AVFoundation.framework" />
+        <framework src="AudioToolbox.framework" />
+
+    </platform>
+</plugin>
