@@ -7,7 +7,7 @@
     <keywords>openears,speech to text,text to speech</keywords>
 
     <js-module src="www/OpenEars.js" name="OpenEars">
-        <clobbers target="cordova.plugins.OpenEars" />
+        <clobbers target="OpenEars" />
     </js-module>
 
     <platform name="ios">
@@ -20,11 +20,18 @@
         <header-file src="src/ios/CDVOpenEars.h" />
         <source-file src="src/ios/CDVOpenEars.m" />
 
-        <resource-file src="OpenEars/Framework/AcousticModelEnglish.bundle" />
-        <resource-file src="OpenEars/Framework/AcousticModelSpanish.bundle" />
+        <source-file src="OpenEars/Framework/AcousticModelEnglish.bundle" framework="true" />
+        <source-file src="OpenEars/Framework/AcousticModelSpanish.bundle" framework="true" />
+
+        <framework src="OpenEars/Framework/OpenEars.framework" custom="true" />
+        <framework src="OpenEars/Framework/Slt.framework" custom="true" />
+    <!--
+        <framework src="OpenEars/Framework/AcousticModelEnglish.bundle" />
+        <framework src="OpenEars/Framework/AcousticModelSpanish.bundle" />
 
         <framework src="OpenEars/Framework/OpenEars.framework" />
         <framework src="OpenEars/Framework/Slt.framework" />
+    -->
 
         <framework src="AVFoundation.framework" />
         <framework src="AudioToolbox.framework" />
