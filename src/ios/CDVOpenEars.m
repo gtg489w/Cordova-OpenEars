@@ -2,7 +2,7 @@
 
 @implementation CDVOpenEars
 
--(void)initialize {
+-(void)initialize:(CDVInvokedUrlCommand*)command{
     NSLog(@"OpenEars initialize called");
     self.fliteController = [[OEFliteController alloc] init];
     self.openEarsEventsObserver = [[OEEventsObserver alloc] init];
