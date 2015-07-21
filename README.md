@@ -30,5 +30,8 @@ And say something back
 
 For more examples, take a look at the sample project https://github.com/gtg489w/Cordova-OpenEarsSample
 
+## Issue with the installation
+You may see an error message in the XCode console - a long paragraph about how the .bundle may not be installed properly. If that is the case then you'll have to manually add the Framework until I figure out why the plugin.xml isn't copying the framework into the project properly.
+
 ## Thanks
 Thank you to @karljacuncha for producing the OpenEars 1.0 Cordova plugin. His project can be found at: https://github.com/karljacuncha/OpenEarsPlugin
