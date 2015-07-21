@@ -52,6 +52,25 @@ http://cordova.apache.org
 			return exec(success, genericHandleError, "OpenEars", "stopListening", []);
 		};
 
+		OpenEars.prototype.changeLanguageModel = function(modelName, modelCSV) {
+			var success;
+			success = function(args) {
+				return trigger("changeLanguageModel", args);
+			};
+			return exec(success, genericHandleError, "OpenEars", "changeLanguageModel", [modelName, modelCSV]);
+		};
+
+		OpenEars.prototype.say = function(textToSay) {
+			var success;
+			success = function(args) {
+				return trigger("say", args);
+			};
+			return exec(success, genericHandleError, "OpenEars", "say", [textToSay]);
+		};
+
+
+
+
 
 
 		OpenEars.prototype.events = {

@@ -5,45 +5,19 @@
 -(void)initialize:(CDVInvokedUrlCommand*)command{
     NSLog(@"OpenEars initialize called");
     self.fliteController = [[OEFliteController alloc] init];
+    self.fliteController.userCanInterruptSpeech = TRUE;
+    self.fliteController.target_stddev = 1.2;
+    self.fliteController.duration_stretch = .9;
+    
     self.openEarsEventsObserver = [[OEEventsObserver alloc] init];
     self.openEarsEventsObserver.delegate = self;
     self.slt = [[Slt alloc] init];
+    self.languageModelGenerator = [[OELanguageModelGenerator alloc] init]; 
     
     [self.openEarsEventsObserver setDelegate:self]; // Make this class the delegate of OpenEarsObserver so we can get all of the messages about what OpenEars is doing.
     
     [[OEPocketsphinxController sharedInstance] setActive:TRUE error:nil]; // Call this before setting any OEPocketsphinxController characteristics
-    
-    // This is the language model we're going to start up with. The only reason I'm making it a class property is that I reuse it a bunch of times in this example,
-    // but you can pass the string contents directly to OEPocketsphinxController:startListeningWithLanguageModelAtPath:dictionaryAtPath:languageModelIsJSGF:
-    
-    NSArray *firstLanguageArray = @[@"BACKWARD",
-                                    @"CHANGE",
-                                    @"FORWARD",
-                                    @"GO",
-                                    @"LEFT",
-                                    @"MODEL",
-                                    @"RIGHT",
-                                    @"TURN"];
-    
-    OELanguageModelGenerator *languageModelGenerator = [[OELanguageModelGenerator alloc] init];
-    
-    // languageModelGenerator.verboseLanguageModelGenerator = TRUE; // Uncomment me for verbose language model generator debug output.
-    
-    NSError *error = [languageModelGenerator generateLanguageModelFromArray:firstLanguageArray withFilesNamed:@"FirstOpenEarsDynamicLanguageModel" forAcousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"]];
-    
-    if(error) {
-        NSLog(@"Dynamic language generator reported error %@", [error description]);
-    }   else {
-        
-        NSLog(@"\n\nApp initialized!!!!!!!!");
-        
-        // This is how to start the continuous listening loop of an available instance of OEPocketsphinxController. We won't do this if the language generation failed since it will be listening for a command to change over to the generated language.
-        [[OEPocketsphinxController sharedInstance] setActive:TRUE error:nil]; // Call this once before setting properties of the OEPocketsphinxController instance.
-    }
-
 }
-
-
 
 -(void)startListening:(CDVInvokedUrlCommand*)command{
     NSLog(@"Called start listening");
@@ -56,19 +30,17 @@
                                     @"MODEL",
                                     @"RIGHT",
                                     @"TURN"];
-    OELanguageModelGenerator *languageModelGenerator = [[OELanguageModelGenerator alloc] init]; 
 
-    NSError *error = [languageModelGenerator generateLanguageModelFromArray:firstLanguageArray withFilesNamed:@"FirstOpenEarsDynamicLanguageModel" forAcousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"]]; // Change "AcousticModelEnglish" to "AcousticModelSpanish" in order to create a language model for Spanish recognition instead of English.
-    
+    NSError *error = [self.languageModelGenerator generateLanguageModelFromArray:firstLanguageArray withFilesNamed:@"FirstOpenEarsDynamicLanguageModel" forAcousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"]]; // Change "AcousticModelEnglish" to "AcousticModelSpanish" in order to create a language model for Spanish recognition instead of English.
+
     if(error) {
         NSLog(@"Dynamic language generator reported error %@", [error description]);    
     } else {
-        self.pathToFirstDynamicallyGeneratedLanguageModel = [languageModelGenerator pathToSuccessfullyGeneratedLanguageModelWithRequestedName:@"FirstOpenEarsDynamicLanguageModel"];
-        self.pathToFirstDynamicallyGeneratedDictionary = [languageModelGenerator pathToSuccessfullyGeneratedDictionaryWithRequestedName:@"FirstOpenEarsDynamicLanguageModel"];
-    }
-    
-    if(![OEPocketsphinxController sharedInstance].isListening) {
-        [[OEPocketsphinxController sharedInstance] startListeningWithLanguageModelAtPath:self.pathToFirstDynamicallyGeneratedLanguageModel dictionaryAtPath:self.pathToFirstDynamicallyGeneratedDictionary acousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"] languageModelIsJSGF:FALSE]; // Start speech recognition if we aren't already listening.
+        NSString *languageModel = [self.languageModelGenerator pathToSuccessfullyGeneratedLanguageModelWithRequestedName:@"FirstOpenEarsDynamicLanguageModel"];
+        NSString *languageDictionary = [self.languageModelGenerator pathToSuccessfullyGeneratedDictionaryWithRequestedName:@"FirstOpenEarsDynamicLanguageModel"];
+        if(![OEPocketsphinxController sharedInstance].isListening) {
+            [[OEPocketsphinxController sharedInstance] startListeningWithLanguageModelAtPath:languageModel dictionaryAtPath:languageDictionary acousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"] languageModelIsJSGF:FALSE];
+        }
     }
 }
 
@@ -91,12 +63,32 @@
     [[OEPocketsphinxController sharedInstance] resumeRecognition];
 }
 
-- (void)changeLanguageModelToFile:(CDVInvokedUrlCommand*)command{
+- (void)changeLanguageModel:(CDVInvokedUrlCommand*)command{
     NSLog(@"Called change language model to file");
+
+    NSString *languageName = [command.arguments objectAtIndex:0];
+    NSString *languageCSV = [command.arguments objectAtIndex:1];
+    NSArray *languageArray = [languageCSV componentsSeparatedByString:@","];
+
+    NSLog(@"Language Name is now %@", languageName);
+    NSLog(@"Language is now %@", languageCSV);
+
+    NSError *error = [self.languageModelGenerator generateLanguageModelFromArray:languageArray withFilesNamed:languageName forAcousticModelAtPath:[OEAcousticModel pathToModel:@"AcousticModelEnglish"]]; 
+
+    if(error) {
+        NSLog(@"Dynamic language generator reported error %@", [error description]);    
+    }   else {
+        NSString *newModel = [self.languageModelGenerator pathToSuccessfullyGeneratedLanguageModelWithRequestedName:languageName];
+        NSString *newDictionary = [self.languageModelGenerator pathToSuccessfullyGeneratedDictionaryWithRequestedName:languageName];
+        [[OEPocketsphinxController sharedInstance] changeLanguageModelToFile:newModel withDictionary:newDictionary];
+    }
 }
 
 - (void)say:(CDVInvokedUrlCommand*)command{
     NSLog(@"Called say");
+
+    NSString *textToSay = [command.arguments objectAtIndex:0];
+    [self.fliteController say:[NSString stringWithFormat:textToSay] withVoice:self.slt];
 }
 
 
@@ -211,7 +203,7 @@
     } else {
         NSLog(@"Pocketsphinx completed mic check 1, 2, mic check 1, 2 with a result of false");
     }
-    NSString* jsString = [[NSString alloc] initWithFormat:@"OpenEars.events.micPermissionCheckCompleted(%@,%@);",result];
+    NSString* jsString = [[NSString alloc] initWithFormat:@"OpenEars.events.micPermissionCheckCompleted(%@);",result?@"True":@"False"];
     [self.commandDelegate evalJs:jsString];
 }
 

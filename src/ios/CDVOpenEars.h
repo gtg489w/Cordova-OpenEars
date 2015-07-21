@@ -21,13 +21,12 @@ http://cordova.apache.org
 
 
 @property (nonatomic, strong) Slt *slt;
+@property (nonatomic, strong) OELanguageModelGenerator *languageModelGenerator;
 
 @property (nonatomic, strong) OEEventsObserver *openEarsEventsObserver;
 @property (nonatomic, strong) OEPocketsphinxController *pocketsphinxController;
 @property (nonatomic, strong) OEFliteController *fliteController;
 
-@property (nonatomic, copy) NSString *pathToFirstDynamicallyGeneratedLanguageModel;
-@property (nonatomic, copy) NSString *pathToFirstDynamicallyGeneratedDictionary;
 
 
 - (void)initialize:(CDVInvokedUrlCommand*)command;
@@ -36,7 +35,7 @@ http://cordova.apache.org
 - (void)stopListening:(CDVInvokedUrlCommand*)command;
 - (void)suspendRecognition:(CDVInvokedUrlCommand*)command;
 - (void)resumeRecognition:(CDVInvokedUrlCommand*)command;
-- (void)changeLanguageModelToFile:(CDVInvokedUrlCommand*)command;
+- (void)changeLanguageModel:(CDVInvokedUrlCommand*)command;
 - (void)say:(CDVInvokedUrlCommand*)command;
 
 
