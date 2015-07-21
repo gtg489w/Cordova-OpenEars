@@ -7,16 +7,20 @@ I assume you have some Cordova experience or have at least read up on the docume
 	cordova plugin add https://github.com/gtg489w/Cordova-OpenEars
 
 To initialize the OpenEars plugin:
+
 	openEars = window.OpenEars;
 	openEars.initialize();
 
 Update your dictionary:
+
 	openEars.changeLanguageModel('MyDictionary', 'HELLO,GOODBYE');
 
 Start listening
+
 	openEars.startListening();
 
 Subscribe to events (e.g., a hypothesis based on your dictionary)
+
 	document.addEventListener("pocketsphinxDidReceiveHypothesis", function(e) {
 		log('Hypothesis: ' + e.detail.hypothesis + ' (' + e.detail.recognitionScore + ')');
 	}, false);
